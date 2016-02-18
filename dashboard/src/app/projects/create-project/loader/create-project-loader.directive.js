@@ -25,7 +25,7 @@ export class CreateProjectLoader {
 
     // scope values
     this.scope = {
-      step: '@cheStep'
+      step: '=cheStep'
     };
   }
 }
