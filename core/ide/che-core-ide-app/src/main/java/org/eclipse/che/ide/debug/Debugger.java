@@ -22,7 +22,7 @@ import java.util.List;
  *
  * @author <a href="mailto:aplotnikov@codenvy.com">Andrey Plotnikov</a>
  */
-public interface Debugger {
+public interface Debugger extends DebuggerObservable {
     /**
      * Adds new breakpoint on server.
      *
@@ -96,8 +96,17 @@ public interface Debugger {
     void changeVariableValue(List<String> path, String newValue);
 
     /**
-     * @return current debugger state
+     *
+     */
+    StackFrameDump getStackFrameDump();
+
+    /**
+     * Returns current debugger state
      */
     DebuggerState getDebuggerState();
 
+    /**
+     * Returns current VM name and version
+     */
+    String getVmInfo();
 }

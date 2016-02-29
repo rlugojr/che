@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.debug;
+package org.eclipse.che.ide.debug.events;
 
 import com.google.gwt.event.shared.EventHandler;
 

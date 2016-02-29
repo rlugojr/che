@@ -61,4 +61,8 @@ public class DebuggerManager {
 
         return null;
     }
+
+    public void addDebuggerObserver(DebuggerObserver debugger) {
+
+    }
 }

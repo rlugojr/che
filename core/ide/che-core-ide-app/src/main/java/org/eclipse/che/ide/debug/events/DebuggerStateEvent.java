@@ -8,9 +8,12 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.debug;
+package org.eclipse.che.ide.debug.events;
 
 import com.google.gwt.event.shared.GwtEvent;
+
+import org.eclipse.che.ide.debug.Debugger;
+import org.eclipse.che.ide.debug.DebuggerState;
 
 /**
  * Event that describes the fact that debugger changed state.

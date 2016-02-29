@@ -19,4 +19,6 @@ public interface FqnResolverObserver {
      * Is invoked when a new resolver added to the factory.
      */
     void onFqnResolverAdded(FqnResolver fqnResolver);
+
+
 }
