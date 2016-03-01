@@ -90,22 +90,8 @@ public class GitOutputPartViewImpl extends Composite implements GitOutputPartVie
 
         HTML html = new HTML();
 
-        String TEXT = text.toUpperCase();
-        if (TEXT.startsWith("[INFO]")) {
-            html.setHTML("<pre" + preStyle + ">[<span style='color:" + INFO_COLOR + ";'><b>INFO</b></span>] " +
-                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(6)).asString() + "</pre>");
 
-        } else if (TEXT.startsWith("[ERROR]")) {
-            html.setHTML("<pre" + preStyle + ">[<span style='color:" + ERROR_COLOR + ";'><b>ERROR</b></span>] " +
-                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(7)).asString() + "</pre>");
-
-        } else if (TEXT.startsWith("[WARNING]")) {
-            html.setHTML("<pre" + preStyle + ">[<span style='color:" + WARNING_COLOR + ";'><b>WARNING</b></span>] " +
-                         SimpleHtmlSanitizer.sanitizeHtml(text.substring(9)).asString() + "</pre>");
-
-        } else {
             html.setHTML("<pre" + preStyle + ">" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</pre>");
-        }
 
         html.getElement().setAttribute("style", "padding-left: 2px;");
         consoleArea.add(html);

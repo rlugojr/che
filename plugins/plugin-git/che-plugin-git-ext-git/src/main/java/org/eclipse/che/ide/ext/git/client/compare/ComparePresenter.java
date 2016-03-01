@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * <p/>
  * Contributors:
- *   Codenvy, S.A. - initial API and implementation
+ * Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.compare;
 
@@ -16,11 +16,15 @@ import com.google.inject.Singleton;
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.ShowFileContentResponse;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
+import org.eclipse.che.api.project.gwt.client.dto.DtoClientImpls;
+import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
+import org.eclipse.che.ide.rest.Unmarshallable;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
@@ -40,6 +44,9 @@ public class ComparePresenter implements CompareView.ActionDelegate {
     private final NotificationManager    notificationManager;
     private final String                 workspaceId;
 
+    private String item;
+    private String currentContent;
+
     @Inject
     public ComparePresenter(AppContext appContext,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
@@ -54,7 +61,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
         this.gitService = gitServiceClient;
         this.notificationManager = notificationManager;
         this.view.setDelegate(this);
-        
+
         this.workspaceId = appContext.getWorkspaceId();
     }
 
@@ -69,6 +76,8 @@ public class ComparePresenter implements CompareView.ActionDelegate {
      *         hash of revision or branch
      */
     public void show(final String file, final String state, final String revision) {
+        this.item = file;
+
         if (state.startsWith("A")) {
             showCompare(file, "", revision);
         } else if (state.startsWith("D")) {
@@ -105,7 +114,23 @@ public class ComparePresenter implements CompareView.ActionDelegate {
 
     /** {@inheritDoc} */
     @Override
-    public void onCloseButtonClicked() {
+    public void onCloseButtonClicked(final String content) {
+        if (content.equals(currentContent)) {
+            return;
+        }
+
+        String path = appContext.getCurrentProject().getRootProject().getName() + "/" + item;
+        projectService.updateFile(workspaceId, path, content, new AsyncRequestCallback<Void>() {
+            @Override
+            protected void onSuccess(Void result) {
+                String s = "";
+            }
+
+            @Override
+            protected void onFailure(Throwable exception) {
+
+            }
+        });
         view.hide();
     }
 
@@ -118,6 +143,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
                                           @Override
                                           protected void onSuccess(final String newContent) {
                                               view.setTitle(file);
+                                              ComparePresenter.this.currentContent = newContent;
                                               view.show(oldContent, newContent, revision, file);
                                           }
 

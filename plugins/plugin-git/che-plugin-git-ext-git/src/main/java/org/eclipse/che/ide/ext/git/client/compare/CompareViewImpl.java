@@ -58,6 +58,7 @@ final class CompareViewImpl extends Window implements CompareView {
 
     private ActionDelegate delegate;
     private ThemeAgent     themeAgent;
+    private CompareWidget  compare;
 
     private final CompareFactory compareFactory;
     private final LoaderFactory  loaderFactory;
@@ -77,7 +78,7 @@ final class CompareViewImpl extends Window implements CompareView {
         Button closeButton = createButton(locale.buttonClose(), "git-compare-close-btn", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCloseButtonClicked();
+                delegate.onCloseButtonClicked(compare.getContent());
             }
         });
 
@@ -103,7 +104,7 @@ final class CompareViewImpl extends Window implements CompareView {
         this.revision.setText(revision);
 
         FileOptions newFile = compareFactory.createFieOptions();
-        newFile.setReadOnly(true);
+        newFile.setReadOnly(false);
 
         FileOptions oldFile = compareFactory.createFieOptions();
         oldFile.setReadOnly(true);
@@ -119,7 +120,7 @@ final class CompareViewImpl extends Window implements CompareView {
         compareConfig.setShowTitle(false);
         compareConfig.setShowLineStatus(false);
 
-        CompareWidget compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
+        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
         comparePanel.clear();
         comparePanel.add(compare);
     }

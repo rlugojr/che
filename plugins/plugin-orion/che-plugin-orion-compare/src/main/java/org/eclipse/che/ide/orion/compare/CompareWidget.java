@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.che.ide.orion.compare;
 
+import elemental.dom.NodeList;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.Window;
@@ -61,7 +62,6 @@ public class CompareWidget extends Composite {
                         frame.getElement().cast();
                         final JsIFrameElement iFrame = frame.getElement().cast();
                         callback.onSuccess(iFrame.getContentWindow());
-                        loader.hide();
                     }
                 });
             }
@@ -109,5 +109,15 @@ public class CompareWidget extends Composite {
                 sendConfig(arg, compareConfig);
             }
         });
+    }
+
+    public String getContent() {
+        final JsIFrameElement iFrame = frame.getElement().cast();
+        NodeList textviewContent = iFrame.getContentDocument().getElementsByClassName("textviewContent").item(0).getChildNodes();
+        String content = "";
+        for (int i = 0; i < textviewContent.length(); i++) {
+            content += textviewContent.item(i).getTextContent() + (i == textviewContent.length() - 1 ? "" : "\n");
+        }
+        return content;
     }
 }

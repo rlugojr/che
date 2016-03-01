@@ -49,6 +49,6 @@ interface CompareView extends View<CompareView.ActionDelegate> {
 
     interface ActionDelegate {
         /** Performs some actions in response to user's clicking on the 'Close' button. */
-        void onCloseButtonClicked();
+        void onCloseButtonClicked(String content);
     }
 }
