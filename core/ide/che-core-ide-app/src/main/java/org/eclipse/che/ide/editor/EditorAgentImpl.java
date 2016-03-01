@@ -317,12 +317,10 @@ public class EditorAgentImpl implements EditorAgent {
             FileType fileType = fileTypeRegistry.getFileTypeByFile(file);
             EditorProvider editorProvider = editorRegistry.getEditor(fileType);
             final EditorPartPresenter editor = editorProvider.getEditor();
-            try {
-                editor.init(new EditorInputImpl(fileType, file));
-                editor.addCloseHandler(editorClosed);
-            } catch (EditorInitException e) {
-                Log.error(getClass(), e);
-            }
+
+            editor.init(new EditorInputImpl(fileType, file), callback);
+            editor.addCloseHandler(editorClosed);
+
             workspace.openPart(editor, EDITING);
             openedEditors.put(filePath, editor);
 

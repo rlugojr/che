@@ -170,12 +170,7 @@ public class RecipeEditorPanel implements TabPresenter, RecipeEditorView.ActionD
             }
         });
 
-
-        try {
-            editor.init(new RecipeEditorInput(fileType, file));
-        } catch (EditorInitException e) {
-            Log.error(getClass(), e);
-        }
+        editor.init(new RecipeEditorInput(fileType, file), null);
     }
 
     private EmbeddedTextEditor getEditor() {

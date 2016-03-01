@@ -195,6 +195,9 @@ public class OpenImplementationPresenter {
 
             @Override
             public void onEditorActivated(EditorPartPresenter editor) { }
+
+            @Override
+            public void onFailedInitialization() { }
         });
     }
 

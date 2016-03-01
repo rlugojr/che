@@ -54,7 +54,7 @@ public interface EditorPartPresenter extends PartPresenter {
      * @throws EditorInitException
      *         if this editor was not initialized successfully
      */
-    void init(@NotNull EditorInput input) throws EditorInitException;
+    void init(@NotNull EditorInput input, EditorAgent.OpenEditorCallback callback);
 
     /**
      * Returns the input for this editor.  If this value changes the part must

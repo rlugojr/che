@@ -150,6 +150,9 @@ public class FileStructurePresenter implements FileStructure.ActionDelegate {
 
             @Override
             public void onEditorActivated(EditorPartPresenter editor) { }
+
+            @Override
+            public void onFailedInitialization() { }
         });
     }
 

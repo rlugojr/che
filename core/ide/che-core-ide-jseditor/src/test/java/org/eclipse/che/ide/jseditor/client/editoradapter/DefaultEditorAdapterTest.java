@@ -174,9 +174,9 @@ public class DefaultEditorAdapterTest {
     public void shouldInit() throws EditorInitException {
         final EditorInput input = mock(EditorInput.class);
 
-        defaultEditorAdapter.init(input);
+        defaultEditorAdapter.init(input, null);
 
-        verify(textEditor).init(input);
+        verify(textEditor).init(input, null);
     }
 
     @Test
@@ -439,7 +439,7 @@ public class DefaultEditorAdapterTest {
         when(file.getPath()).thenReturn(path);
         when(event.getOperationType()).thenReturn(FileEvent.FileOperation.CLOSE);
 
-        defaultEditorAdapter.init(input);
+        defaultEditorAdapter.init(input, null);
         defaultEditorAdapter.onFileOperation(event);
 
         verify(workspaceAgent).removePart(defaultEditorAdapter);

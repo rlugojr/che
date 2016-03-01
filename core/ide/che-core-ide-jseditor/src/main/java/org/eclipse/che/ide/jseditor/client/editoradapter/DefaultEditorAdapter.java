@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 
-import org.eclipse.che.ide.api.editor.EditorInitException;
+import org.eclipse.che.ide.api.editor.EditorAgent;
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.event.FileEvent;
 import org.eclipse.che.ide.api.event.FileEventHandler;
@@ -145,8 +145,8 @@ public class DefaultEditorAdapter extends Composite implements EditorAdapter, Fi
     }
 
     @Override
-    public void init(final EditorInput input) throws EditorInitException {
-        this.textEditor.init(input);
+    public void init(final EditorInput input, EditorAgent.OpenEditorCallback callback) {
+        this.textEditor.init(input, callback);
         this.input = input;
     }
 

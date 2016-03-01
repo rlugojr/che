@@ -168,6 +168,9 @@ public class OpenDeclarationFinder {
 
                 @Override
                 public void onEditorActivated(EditorPartPresenter editor) { }
+
+                @Override
+                public void onFailedInitialization() { }
             });
         }
     }

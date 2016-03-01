@@ -198,6 +198,9 @@ public class MatchNode extends AbstractPresentationNode implements HasAction {
 
             @Override
             public void onEditorActivated(EditorPartPresenter editor) { }
+
+            @Override
+            public void onFailedInitialization() { }
         });
     }
 

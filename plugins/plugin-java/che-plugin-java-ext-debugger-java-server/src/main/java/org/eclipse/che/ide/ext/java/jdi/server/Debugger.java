@@ -61,6 +61,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.eclipse.che.commons.json.JsonHelper.toJson;
 
@@ -115,6 +117,8 @@ public class Debugger implements EventsHandler {
     private ThreadReference thread;
     /** Current stack frame. Not <code>null</code> is thread suspended, e.g breakpoint reached. */
     private JdiStackFrame   stackFrame;
+    /**Lock for breakpoint steps*/
+    private Lock lock = new ReentrantLock();
 
     /**
      * Create debugger and connect it to the JVM which already running at the specified host and port.
@@ -386,45 +390,50 @@ public class Debugger implements EventsHandler {
      *         when any other errors occur when try to access the current state of target JVM
      */
     public StackFrameDump dumpStackFrame() throws DebuggerStateException, DebuggerException {
-
-        StackFrameDump dump = DtoFactory.getInstance().createDto(StackFrameDump.class);
-        boolean existInformation = true;
-        JdiLocalVariable[] variables = new JdiLocalVariable[0];
+        lock.lock();
         try {
-            variables = getCurrentFrame().getLocalVariables();
-        } catch (DebuggerAbsentInformationException e) {
-            existInformation = false;
+            final JdiStackFrame currentFrame = getCurrentFrame();
+            StackFrameDump dump = DtoFactory.getInstance().createDto(StackFrameDump.class);
+            boolean existInformation = true;
+            JdiLocalVariable[] variables = new JdiLocalVariable[0];
+            try {
+                variables = currentFrame.getLocalVariables();
+            } catch (DebuggerAbsentInformationException e) {
+                existInformation = false;
+            }
+            for (JdiField f : currentFrame.getFields()) {
+                dump.getFields().add((Field)DtoFactory.newDto(Field.class)
+                                                      .withIsFinal(f.isFinal())
+                                                      .withIsStatic(f.isStatic())
+                                                      .withIsTransient(f.isTransient())
+                                                      .withIsVolatile(f.isVolatile())
+                                                      .withName(f.getName())
+                                                      .withExistInformation(existInformation)
+                                                      .withValue(f.getValue().getAsString())
+                                                      .withType(f.getTypeName())
+                                                      .withVariablePath(
+                                                              DtoFactory.getInstance().createDto(VariablePath.class)
+                                                                        .withPath(Arrays.asList(f.isStatic() ? "static" : "this",
+                                                                                                f.getName()))
+                                                                       )
+                                                      .withPrimitive(f.isPrimitive()));
+            }
+            for (JdiLocalVariable var : variables) {
+                dump.getLocalVariables().add(DtoFactory.newDto(Variable.class)
+                                                       .withName(var.getName())
+                                                       .withExistInformation(existInformation)
+                                                       .withValue(var.getValue().getAsString())
+                                                       .withType(var.getTypeName())
+                                                       .withVariablePath(
+                                                               DtoFactory.getInstance().createDto(VariablePath.class)
+                                                                         .withPath(Collections.singletonList(var.getName()))
+                                                                        )
+                                                       .withPrimitive(var.isPrimitive()));
+            }
+            return dump;
+        } finally {
+            lock.unlock();
         }
-
-        for (JdiField f : getCurrentFrame().getFields()) {
-            dump.getFields().add((Field)DtoFactory.getInstance().createDto(Field.class)
-                                                  .withIsFinal(f.isFinal())
-                                                  .withIsStatic(f.isStatic())
-                                                  .withIsTransient(f.isTransient())
-                                                  .withIsVolatile(f.isVolatile())
-                                                  .withName(f.getName())
-                                                  .withExistInformation(existInformation)
-                                                  .withValue(f.getValue().getAsString())
-                                                  .withType(f.getTypeName())
-                                                  .withVariablePath(
-                                                          DtoFactory.getInstance().createDto(VariablePath.class)
-                                                                    .withPath(Arrays.asList(f.isStatic() ? "static" : "this", f.getName()))
-                                                                   )
-                                                  .withPrimitive(f.isPrimitive()));
-        }
-        for (JdiLocalVariable var : variables) {
-            dump.getLocalVariables().add(DtoFactory.getInstance().createDto(Variable.class)
-                                                   .withName(var.getName())
-                                                   .withExistInformation(existInformation)
-                                                   .withValue(var.getValue().getAsString())
-                                                   .withType(var.getTypeName())
-                                                   .withVariablePath(
-                                                           DtoFactory.getInstance().createDto(VariablePath.class)
-                                                                     .withPath(Collections.singletonList(var.getName()))
-                                                                    )
-                                                   .withPrimitive(var.isPrimitive()));
-        }
-        return dump;
     }
 
     /**
@@ -596,9 +605,19 @@ public class Debugger implements EventsHandler {
             for (com.sun.jdi.event.Event event : eventSet) {
                 LOG.debug("New event: {}", event);
                 if (event instanceof com.sun.jdi.event.BreakpointEvent) {
-                    resume = processBreakPointEvent((com.sun.jdi.event.BreakpointEvent)event);
+                    lock.lock();
+                    try {
+                        resume = processBreakPointEvent((com.sun.jdi.event.BreakpointEvent)event);
+                    } finally {
+                        lock.unlock();
+                    }
                 } else if (event instanceof com.sun.jdi.event.StepEvent) {
-                    resume = processStepEvent((com.sun.jdi.event.StepEvent)event);
+                    lock.lock();
+                    try {
+                        resume = processStepEvent((com.sun.jdi.event.StepEvent)event);
+                    } finally {
+                        lock.unlock();
+                    }
                 } else if (event instanceof com.sun.jdi.event.VMDisconnectEvent) {
                     resume = processDisconnectEvent((com.sun.jdi.event.VMDisconnectEvent)event);
                 } else if (event instanceof com.sun.jdi.event.ClassPrepareEvent) {
@@ -757,11 +776,19 @@ public class Debugger implements EventsHandler {
     }
 
     private void doStep(int depth) throws DebuggerException {
-        clearSteps();
-        StepRequest request = getEventManager().createStepRequest(getCurrentThread(), StepRequest.STEP_LINE, depth);
-        request.addCountFilter(1);
-        request.enable();
-        resume();
+        if (lock.tryLock()) {
+            try {
+                clearSteps();
+
+                StepRequest request = getEventManager().createStepRequest(getCurrentThread(), StepRequest.STEP_LINE, depth);
+                request.addCountFilter(1);
+                request.enable();
+
+                resume();
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     private void clearSteps() throws DebuggerException {

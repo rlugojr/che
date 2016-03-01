@@ -32,13 +32,13 @@ public abstract class AbstractEditorPresenter extends AbstractPartPresenter impl
 
     /** {@inheritDoc} */
     @Override
-    public void init(@NotNull EditorInput input) throws EditorInitException {
+    public void init(@NotNull EditorInput input, final EditorAgent.OpenEditorCallback callback) {
         this.input = input;
-        initializeEditor();
+        initializeEditor(callback);
     }
 
     /** Initializes this editor. */
-    protected abstract void initializeEditor();
+    protected abstract void initializeEditor(final EditorAgent.OpenEditorCallback callback);
 
     /**
      * Set dirty state and notify expressions
