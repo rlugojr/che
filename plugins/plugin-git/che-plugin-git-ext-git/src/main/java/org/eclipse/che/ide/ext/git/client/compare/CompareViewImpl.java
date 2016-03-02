@@ -82,7 +82,15 @@ final class CompareViewImpl extends Window implements CompareView {
             }
         });
 
+        Button compareButton = createButton("refresh", "git-compare-compare-btn", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                compare.refresh1();
+            }
+        });
+
         addButtonToFooter(closeButton);
+        addButtonToFooter(compareButton);
 
         comparePanel.getElement().setId(Document.get().createUniqueId());
     }
@@ -101,7 +109,7 @@ final class CompareViewImpl extends Window implements CompareView {
 
         super.show();
 
-        this.revision.setText(revision);
+        this.revision.setText(revision + "( Read-only)");
 
         FileOptions newFile = compareFactory.createFieOptions();
         newFile.setReadOnly(false);

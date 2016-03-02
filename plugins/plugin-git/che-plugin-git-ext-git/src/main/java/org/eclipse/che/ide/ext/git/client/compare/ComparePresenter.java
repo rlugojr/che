@@ -12,19 +12,17 @@ package org.eclipse.che.ide.ext.git.client.compare;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.api.git.gwt.client.GitServiceClient;
 import org.eclipse.che.api.git.shared.ShowFileContentResponse;
 import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
-import org.eclipse.che.api.project.gwt.client.dto.DtoClientImpls;
-import org.eclipse.che.api.project.shared.dto.ItemReference;
 import org.eclipse.che.ide.api.app.AppContext;
+import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
-import org.eclipse.che.ide.project.node.FileReferenceNode;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
-import org.eclipse.che.ide.rest.Unmarshallable;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
@@ -37,6 +35,7 @@ import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAI
 public class ComparePresenter implements CompareView.ActionDelegate {
 
     private final AppContext             appContext;
+    private final EventBus               eventBus;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final CompareView            view;
     private final ProjectServiceClient   projectService;
@@ -49,12 +48,14 @@ public class ComparePresenter implements CompareView.ActionDelegate {
 
     @Inject
     public ComparePresenter(AppContext appContext,
+                            EventBus eventBus,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             CompareView view,
                             ProjectServiceClient projectServiceClient,
                             GitServiceClient gitServiceClient,
                             NotificationManager notificationManager) {
         this.appContext = appContext;
+        this.eventBus = eventBus;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.view = view;
         this.projectService = projectServiceClient;
@@ -116,14 +117,15 @@ public class ComparePresenter implements CompareView.ActionDelegate {
     @Override
     public void onCloseButtonClicked(final String content) {
         if (content.equals(currentContent)) {
+            view.hide();
             return;
         }
 
-        String path = appContext.getCurrentProject().getRootProject().getName() + "/" + item;
+        final String path = appContext.getCurrentProject().getRootProject().getName() + "/" + item;
         projectService.updateFile(workspaceId, path, content, new AsyncRequestCallback<Void>() {
             @Override
             protected void onSuccess(Void result) {
-                String s = "";
+                eventBus.fireEvent(new FileContentUpdateEvent("/" + path));
             }
 
             @Override

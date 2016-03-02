@@ -42,6 +42,7 @@ import org.eclipse.che.ide.ui.loaders.request.MessageLoader;
 public class CompareWidget extends Composite {
 
     private Frame           frame;
+    private JsIFrameElement iFrame;
     private Promise<Window> framePromise;
     private CompareConfig   compareConfig;
 
@@ -60,7 +61,7 @@ public class CompareWidget extends Composite {
                     @Override
                     public void onLoad(LoadEvent event) {
                         frame.getElement().cast();
-                        final JsIFrameElement iFrame = frame.getElement().cast();
+                        iFrame = frame.getElement().cast();
                         callback.onSuccess(iFrame.getContentWindow());
                     }
                 });
@@ -111,13 +112,24 @@ public class CompareWidget extends Composite {
         });
     }
 
+    public void refresh1() {
+        framePromise.then(new Operation<Window>() {
+            @Override
+            public void apply(Window arg) throws OperationException {
+                JSONObject obj = new JSONObject();
+                obj.put("type", new JSONString("refresh"));
+                arg.postMessage(obj.toString(), "*");
+            }
+        });
+    }
+
     public String getContent() {
-        final JsIFrameElement iFrame = frame.getElement().cast();
         NodeList textviewContent = iFrame.getContentDocument().getElementsByClassName("textviewContent").item(0).getChildNodes();
         String content = "";
         for (int i = 0; i < textviewContent.length(); i++) {
-            content += textviewContent.item(i).getTextContent() + (i == textviewContent.length() - 1 ? "" : "\n");
+            String line = textviewContent.item(i).getTextContent();
+            content += line.replaceAll(" $", "\n");
         }
-        return content;
+        return content.replaceAll("\n$", "");
     }
 }

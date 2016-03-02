@@ -78,6 +78,9 @@
                     }
                     document.getElementsByTagName("head")[0].appendChild(style);
                 }
+                if(event.type == "refresh"){
+                    compare.refresh();
+                }
             });
         }, false);
     </script>
