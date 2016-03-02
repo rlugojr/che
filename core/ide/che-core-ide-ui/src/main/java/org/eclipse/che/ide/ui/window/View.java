@@ -39,7 +39,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -320,8 +319,8 @@ class View extends Composite {
      * Otherwise sets focus on first child of footer
      */
     public void setFocus() {
-        if (!setFocusOnChild(content)) {
-            setFocusOnChild(footer);
+        if (!setFocusOnChildOf(content)) {
+            setFocusOnChildOf(footer);
         }
     }
 
@@ -329,7 +328,7 @@ class View extends Composite {
      * Sets focus on the first focusable child if such exists.
      * @return <code>true</code> if the focus was set
      */
-    private boolean setFocusOnChild(Widget widget) {
+    private boolean setFocusOnChildOf(Widget widget) {
         List<FocusWidget> focusableChildren = UIUtil.getFocusableChildren(widget);
         for (FocusWidget focusableWidget : focusableChildren) {
             if (focusableWidget.isVisible()) {
