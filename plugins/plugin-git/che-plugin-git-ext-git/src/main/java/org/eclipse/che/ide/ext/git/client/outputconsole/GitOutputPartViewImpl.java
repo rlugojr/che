@@ -43,10 +43,6 @@ public class GitOutputPartViewImpl extends Composite implements GitOutputPartVie
     interface GitOutputPartViewImplUiBinder extends UiBinder<Widget, GitOutputPartViewImpl> {
     }
 
-    private static final String INFO_COLOR    = "lightgreen";
-    private static final String WARNING_COLOR = "cyan";
-    private static final String ERROR_COLOR   = "#F62217";
-
     private ActionDelegate delegate;
 
     @UiField
@@ -89,11 +85,9 @@ public class GitOutputPartViewImpl extends Composite implements GitOutputPartVie
         String preStyle = " style='margin:0px; font-size: 12px;' ";
 
         HTML html = new HTML();
-
-
-            html.setHTML("<pre" + preStyle + ">" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</pre>");
-
+        html.setHTML("<pre" + preStyle + ">" + SimpleHtmlSanitizer.sanitizeHtml(text).asString() + "</pre>");
         html.getElement().setAttribute("style", "padding-left: 2px;");
+
         consoleArea.add(html);
     }
 
@@ -107,21 +101,6 @@ public class GitOutputPartViewImpl extends Composite implements GitOutputPartVie
 
         html.getElement().setAttribute("style", "padding-left: 2px;");
         consoleArea.add(html);
-    }
-
-    @Override
-    public void printInfo(String text) {
-        print(text, INFO_COLOR);
-    }
-
-    @Override
-    public void printWarn(String text) {
-        print(text, WARNING_COLOR);
-    }
-
-    @Override
-    public void printError(String text) {
-        print(text, ERROR_COLOR);
     }
 
     /** {@inheritDoc} */
