@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -112,7 +113,7 @@ class View extends Composite {
         dummyFocusElement.addFocusHandler(new FocusHandler() {
             @Override
             public void onFocus(FocusEvent event) {
-                returnFocusOnView();
+                setFocus();
             }
         });
         contentContainer.add(dummyFocusElement);
@@ -306,9 +307,9 @@ class View extends Composite {
     }
 
     /**
-     * Set focus on the specific children element if such exists.
+     * Sets focus on the last focused child element if such exists.
      */
-    public void focusView() {
+    public void focusLastFocusedElement() {
         if (lastFocused != null) {
             lastFocused.setFocus(true);
         }
@@ -318,21 +319,24 @@ class View extends Composite {
      * Sets focus on the first child of content panel if such exists.
      * Otherwise sets focus on first child of footer
      */
-    private void returnFocusOnView() {
-        List<FocusWidget> contentChildren = UIUtil.getFocusableChildren(content);
-        for (FocusWidget widget : contentChildren) {
-            if (widget.isVisible()) {
-                widget.setFocus(true);
-                return;
-            }
+    public void setFocus() {
+        if (!setFocusOnChild(content)) {
+            setFocusOnChild(footer);
         }
+    }
 
-        List<FocusWidget> footerChildren = UIUtil.getFocusableChildren(footer);
-        for (FocusWidget widget : footerChildren) {
-            if (widget.isVisible()) {
-                widget.setFocus(true);
-                return;
+    /**
+     * Sets focus on the first focusable child if such exists.
+     * @return <code>true</code> if the focus was set
+     */
+    private boolean setFocusOnChild(Widget widget) {
+        List<FocusWidget> focusableChildren = UIUtil.getFocusableChildren(widget);
+        for (FocusWidget focusableWidget : focusableChildren) {
+            if (focusableWidget.isVisible()) {
+                focusableWidget.setFocus(true);
+                return true;
             }
         }
+        return false;
     }
 }
