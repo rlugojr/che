@@ -20,6 +20,8 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
@@ -41,6 +43,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import org.eclipse.che.ide.util.UIUtil;
+
+import java.util.List;
 
 /**
  * The view that renders the {@link Window}. The View consists of a glass
@@ -78,7 +82,7 @@ class View extends Composite {
     private int               dragStartX;
     private int               dragStartY;
     private String            transition;
-    private FocusWidget lastFocused;
+    private FocusWidget       lastFocused;
 
     private BlurHandler blurHandler = new BlurHandler() {
         @Override
@@ -102,6 +106,16 @@ class View extends Composite {
             contentContainer.add(footer);
         }
         handleEvents();
+
+        FocusPanel dummyFocusElement = new FocusPanel();
+        dummyFocusElement.setTabIndex(0);
+        dummyFocusElement.addFocusHandler(new FocusHandler() {
+            @Override
+            public void onFocus(FocusEvent event) {
+                returnFocusOnView();
+            }
+        });
+        contentContainer.add(dummyFocusElement);
     }
 
     /**
@@ -297,6 +311,28 @@ class View extends Composite {
     public void focusView() {
         if (lastFocused != null) {
             lastFocused.setFocus(true);
+        }
+    }
+
+    /**
+     * Sets focus on the first child of content panel if such exists.
+     * Otherwise sets focus on first child of footer
+     */
+    private void returnFocusOnView() {
+        List<FocusWidget> contentChildren = UIUtil.getFocusableChildren(content);
+        for (FocusWidget widget : contentChildren) {
+            if (widget.isVisible()) {
+                widget.setFocus(true);
+                return;
+            }
+        }
+
+        List<FocusWidget> footerChildren = UIUtil.getFocusableChildren(footer);
+        for (FocusWidget widget : footerChildren) {
+            if (widget.isVisible()) {
+                widget.setFocus(true);
+                return;
+            }
         }
     }
 }
