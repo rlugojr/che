@@ -689,6 +689,9 @@ export class CreateProjectCtrl {
     if ('image' === recipeSource.type) {
       // needs to add recipe for that script
       promise = this.submitRecipe('generated-' + stack.name, 'FROM ' + recipeSource.origin);
+    } else if ('recipe' === recipeSource.type) {
+
+      promise = this.submitRecipe('generated-' + stack.name, recipeSource.origin);
     } else {
       throw 'Not implemented';
     }
@@ -1044,8 +1047,8 @@ export class CreateProjectCtrl {
     this.workspaceName = workspace.config.name;
     this.stackLibraryOption = 'existing-workspace';
     let stack = null;
-    if (workspace.attributes && workspace.attributes.stackId) {
-      let stackId = workspace.attributes.stackId;
+    if (workspace.config.attributes && workspace.config.attributes.stackId) {
+      let stackId = workspace.config.attributes.stackId;
       stack = this.cheStack.getStackById(stackId);
     }
     this.updateCurrentStack(stack);
