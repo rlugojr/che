@@ -13,9 +13,11 @@ package org.eclipse.che.ide.ui.dialogs.choice;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.che.ide.ui.window.Window;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -23,7 +25,7 @@ import com.google.inject.Inject;
 
 /**
  * Implementation of the choice dialog view.
- * 
+ *
  * @author Mickaël Leduque
  * @author Artem Zatsarynnyi
  */
@@ -55,16 +57,30 @@ public class ChoiceDialogViewImpl extends Window implements ChoiceDialogView {
 
     @Override
     protected void onClose() {
+        footer.onClose();
+    }
+
+    @Override
+    protected void onEnterClicked() {
+        delegate.onEnterClicked();
     }
 
     @Override
     public void showDialog() {
-        this.show();
+        super.show();
+
+        new Timer() {
+            @Override
+            public void run() {
+                footer.firstChoiceButton.setFocus(true);
+            }
+        }.schedule(300);
     }
 
     @Override
     public void closeDialog() {
         this.hide();
+        footer.onClose();
     }
 
     @Override
@@ -89,6 +105,21 @@ public class ChoiceDialogViewImpl extends Window implements ChoiceDialogView {
     public void setThirdChoiceLabel(final String thirdChoiceLabel) {
         footer.thirdChoiceButton.setText(thirdChoiceLabel);
         footer.thirdChoiceButton.setVisible(!thirdChoiceLabel.isEmpty());
+    }
+
+    @Override
+    public boolean isFirstButtonInFocus() {
+        return footer.isFirstButtonInFocus();
+    }
+
+    @Override
+    public boolean isSecondButtonInFocus() {
+        return footer.isSecondButtonInFocus();
+    }
+
+    @Override
+    public boolean isThirdButtonInFocus() {
+        return footer.isThirdButtonInFocus();
     }
 
     /** The UI binder interface for this components. */

@@ -45,7 +45,7 @@ public class InputDialogViewTest extends BaseTest {
     public void setUp() {
         super.setUp();
         when(footer.getElement()).thenReturn(mock(Element.class));
-        view = new InputDialogViewImpl(footer, uiLocalizationConstant);
+        view = new InputDialogViewImpl(footer);
     }
 
     @Test
@@ -53,5 +53,19 @@ public class InputDialogViewTest extends BaseTest {
         view.setDelegate(actionDelegate);
 
         verify(footer).setDelegate(eq(actionDelegate));
+    }
+
+    @Test
+    public void onCloseTest() {
+        view.onClose();
+
+        verify(footer).onClose();
+    }
+
+    @Test
+    public void closeDialogTest() {
+        view.closeDialog();
+
+        verify(footer).onClose();
     }
 }

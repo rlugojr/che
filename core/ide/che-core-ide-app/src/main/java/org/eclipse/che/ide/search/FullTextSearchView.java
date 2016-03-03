@@ -31,6 +31,9 @@ public interface FullTextSearchView extends View<FullTextSearchView.ActionDelega
 
         /** Set focus to root window. */
         void setFocus();
+
+        /** Called when Enter clicked */
+        void onEnterClicked();
     }
 
     /** Shows error message on the view */
@@ -42,6 +45,17 @@ public interface FullTextSearchView extends View<FullTextSearchView.ActionDelega
     /** Set focus to root window. */
     void setFocus();
 
+    /** Returns is accept button in the focus */
+    boolean isAcceptButtonInFocus();
+
+    /** Returns is cancel button in the focus */
+    boolean isCancelButtonInFocus();
+
+    /** Returns is select path button in the focus */
+    boolean isSelectPathButtonInFocus();
+
+    void showSelectPathDialog();
+
     /** Close dialog. */
     void close();
 
@@ -50,6 +64,9 @@ public interface FullTextSearchView extends View<FullTextSearchView.ActionDelega
 
     /** Seth path of directory to search */
     void setPathDirectory(String path);
+
+    /** Returns text for searching */
+    String getSearchText();
 
     /** Returns file mask for searching */
     String getFileMask();

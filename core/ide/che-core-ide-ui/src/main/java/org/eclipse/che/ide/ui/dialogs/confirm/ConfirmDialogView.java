@@ -41,6 +41,12 @@ public interface ConfirmDialogView {
     /** Overwrites label of Cancel button */
     void setCancelButtonLabel(String label);
 
+    /** Returns is OK button in the focus */
+    boolean isOkButtonInFocus();
+
+    /** Returns is Cancel button in the focus */
+    boolean isCancelButtonInFocus();
+
     /** The interface for the action delegate. */
     interface ActionDelegate {
 
@@ -49,5 +55,8 @@ public interface ConfirmDialogView {
 
         /** Defines what's done when the user clicks OK. */
         void accepted();
+
+        /** Performs any actions appropriate in response to the user having clicked the Enter key. */
+        void onEnterClicked();
     }
 }

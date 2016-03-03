@@ -20,11 +20,12 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.ui.WidgetFocusTracker;
 import org.eclipse.che.ide.ui.window.Window;
 
 /**
  * The footer show on choice dialogs.
- * 
+ *
  * @author Mickaël Leduque
  * @author Artem Zatsarynnyi
  */
@@ -44,11 +45,15 @@ public class ChoiceDialogFooter extends Composite {
     Button thirdChoiceButton;
 
     /** The action delegate. */
-    private ChoiceDialogView.ActionDelegate actionDelegate;
+    private       ChoiceDialogView.ActionDelegate actionDelegate;
+    private final WidgetFocusTracker              widgetFocusTracker;
 
     @Inject
-    public ChoiceDialogFooter() {
+    public ChoiceDialogFooter(WidgetFocusTracker widgetFocusTracker) {
+        this.widgetFocusTracker = widgetFocusTracker;
         initWidget(uiBinder.createAndBindUi(this));
+
+        trackFocusForWidgets();
 
         firstChoiceButton.addStyleName(resources.windowCss().primaryButton());
         firstChoiceButton.getElement().setId("ask-dialog-first");
@@ -73,7 +78,8 @@ public class ChoiceDialogFooter extends Composite {
     /**
      * Handler set on the first button.
      *
-     * @param event the event that triggers the handler call
+     * @param event
+     *         the event that triggers the handler call
      */
     @UiHandler("firstChoiceButton")
     public void handleFirstChoiceClick(final ClickEvent event) {
@@ -83,7 +89,8 @@ public class ChoiceDialogFooter extends Composite {
     /**
      * Handler set on the second button.
      *
-     * @param event the event that triggers the handler call
+     * @param event
+     *         the event that triggers the handler call
      */
     @UiHandler("secondChoiceButton")
     public void handleSecondChoiceClick(final ClickEvent event) {
@@ -93,11 +100,43 @@ public class ChoiceDialogFooter extends Composite {
     /**
      * Handler set on the third button.
      *
-     * @param event the event that triggers the handler call
+     * @param event
+     *         the event that triggers the handler call
      */
     @UiHandler("thirdChoiceButton")
     public void handleThirdChoiceClick(final ClickEvent event) {
         this.actionDelegate.thirdChoiceClicked();
+    }
+
+    /** Returns is first button in the focus */
+    boolean isFirstButtonInFocus() {
+        return widgetFocusTracker.isWidgetFocused(firstChoiceButton);
+    }
+
+    /** Returns is second button in the focus */
+    boolean isSecondButtonInFocus() {
+        return widgetFocusTracker.isWidgetFocused(secondChoiceButton);
+    }
+
+    /** Returns is third button in the focus */
+    boolean isThirdButtonInFocus() {
+        return widgetFocusTracker.isWidgetFocused(thirdChoiceButton);
+    }
+
+    private void trackFocusForWidgets() {
+        widgetFocusTracker.subscribe(firstChoiceButton);
+        widgetFocusTracker.subscribe(secondChoiceButton);
+        widgetFocusTracker.subscribe(thirdChoiceButton);
+    }
+
+    private void unTrackFocusForWidgets() {
+        widgetFocusTracker.unSubscribe(firstChoiceButton);
+        widgetFocusTracker.unSubscribe(secondChoiceButton);
+        widgetFocusTracker.unSubscribe(thirdChoiceButton);
+    }
+
+    public void onClose() {
+        unTrackFocusForWidgets();
     }
 
     /** The UI binder interface for this component. */

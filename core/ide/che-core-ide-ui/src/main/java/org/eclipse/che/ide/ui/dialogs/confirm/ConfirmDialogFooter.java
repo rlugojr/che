@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
+import org.eclipse.che.ide.ui.WidgetFocusTracker;
 import org.eclipse.che.ide.ui.window.Window;
 
 import javax.validation.constraints.NotNull;
@@ -46,13 +47,19 @@ public class ConfirmDialogFooter extends Composite {
     /** The action delegate. */
     private ConfirmDialogView.ActionDelegate actionDelegate;
 
+    private final WidgetFocusTracker widgetFocusTracker;
     @Inject
-    public ConfirmDialogFooter(final @NotNull UILocalizationConstant messages) {
+    public ConfirmDialogFooter(final @NotNull UILocalizationConstant messages, WidgetFocusTracker widgetFocusTracker) {
         this.messages = messages;
+        this.widgetFocusTracker = widgetFocusTracker;
         initWidget(uiBinder.createAndBindUi(this));
+
+        widgetFocusTracker.subscribe(okButton);
+        widgetFocusTracker.subscribe(cancelButton);
 
         okButton.addStyleName(resources.windowCss().primaryButton());
         okButton.getElement().setId("ask-dialog-ok");
+
         cancelButton.addStyleName(resources.windowCss().button());
         cancelButton.getElement().setId("ask-dialog-cancel");
     }
@@ -105,6 +112,21 @@ public class ConfirmDialogFooter extends Composite {
     @UiHandler("cancelButton")
     public void handleCancelClick(final ClickEvent event) {
         this.actionDelegate.cancelled();
+    }
+
+    /** Returns is OK button in the focus */
+    boolean isOkButtonInFocus() {
+        return widgetFocusTracker.isWidgetFocused(okButton);
+    }
+
+    /** Returns is Cancel button in the focus */
+    boolean isCancelButtonInFocus() {
+        return widgetFocusTracker.isWidgetFocused(cancelButton);
+    }
+
+    public void onClose() {
+        widgetFocusTracker.unSubscribe(okButton);
+        widgetFocusTracker.unSubscribe(cancelButton);
     }
 
     /** The UI binder interface for this component. */
