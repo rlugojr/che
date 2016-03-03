@@ -13,6 +13,7 @@ package org.eclipse.che.ide.ext.git.client.compare;
 import com.google.inject.ImplementedBy;
 
 import org.eclipse.che.ide.api.mvp.View;
+import org.eclipse.che.ide.orion.compare.CompareWidget;
 
 /**
  * The view of {@link ComparePresenter}.

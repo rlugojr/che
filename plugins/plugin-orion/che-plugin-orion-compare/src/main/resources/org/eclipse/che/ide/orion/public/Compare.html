@@ -26,14 +26,13 @@
     </style>
     <script src="require.js"></script>
     <script>
-        var requirePromise = new Promise(function (resolve, reject) {
+        var compare, requirePromise = new Promise(function (resolve, reject) {
             require(["./built-compare-10.0/built-compare-amd.min.js"], function (Compare) {
                 resolve(Compare);
             });
         });
         window.addEventListener("message", function (e) {
-            var compare, options;
-
+            var options;
             requirePromise.then(function (Compare) {
 
                 var event = JSON.parse(e.data);
@@ -79,7 +78,25 @@
                     document.getElementsByTagName("head")[0].appendChild(style);
                 }
                 if(event.type == "refresh"){
-                    compare.refresh();
+                    var widget = compare.getCompareView().getWidget();
+                    var editors = widget.getEditors();
+                    var oldContents = editors[0].getTextView().getText();
+                    var newContents = editors[1].getTextView().getText();
+                    widget.options.oldFile.Content = oldContents;
+                    widget.options.newFile.Content = newContents;
+                    widget.options.oldFile.URL = null;
+                    widget.options.newFile.URL = null;
+                    widget.options.mapper = null;
+                    compare.refresh()
+                }
+                if(event.type == "getContent"){
+                    var widget = compare.getCompareView().getWidget();
+                    var editors = widget.getEditors();
+                    var oldContents = editors[0].getTextView().getText();
+                    var newContents = editors[1].getTextView().getText();
+                    var evt = document.createEvent('CustomEvent');
+                    evt.initCustomEvent("MyEventType", true, true, oldContents);
+                    window.dispatchEvent(evt);
                 }
             });
         }, false);

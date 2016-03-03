@@ -158,7 +158,7 @@ public class ResetToCommitPresenter implements ResetToCommitView.ActionDelegate 
     }
 
     /**
-     * Reset current HEAD to the specified state and refresh project in the success case.
+     * Reset current HEAD to the specified state and reload project in the success case.
      */
     private void reset() {
         ResetRequest.ResetType type = view.isMixMode() ? ResetRequest.ResetType.MIXED : null;

@@ -11,6 +11,7 @@
 package org.eclipse.che.ide.orion.compare;
 
 import elemental.dom.NodeList;
+import elemental.events.CustomEvent;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.Window;
@@ -46,7 +47,11 @@ public class CompareWidget extends Composite {
     private Promise<Window> framePromise;
     private CompareConfig   compareConfig;
 
-    public CompareWidget(final CompareConfig compareConfig, final String themeId, LoaderFactory loaderFactory) {
+    public interface CallBack {
+        void onSuccess(String content);
+    }
+
+    public CompareWidget(final CompareFactory compareFactory, final CompareConfig compareConfig, final String themeId, LoaderFactory loaderFactory) {
         this.compareConfig = compareConfig;
         this.frame = new Frame(GWT.getModuleBaseURL() + "/Compare.html");
         initWidget(frame);
@@ -84,6 +89,7 @@ public class CompareWidget extends Composite {
                         loader.hide();
                     }
                 }, false);
+
             }
         });
     }
@@ -101,9 +107,9 @@ public class CompareWidget extends Composite {
     }
 
     /**
-     * Refresh compare according to configuration
+     * Reload compare according to configuration.
      */
-    public void refresh() {
+    public void reload() {
         framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
@@ -112,7 +118,10 @@ public class CompareWidget extends Composite {
         });
     }
 
-    public void refresh1() {
+    /**
+     * Refresh
+     */
+    public void refresh() {
         framePromise.then(new Operation<Window>() {
             @Override
             public void apply(Window arg) throws OperationException {
@@ -123,13 +132,24 @@ public class CompareWidget extends Composite {
         });
     }
 
-    public String getContent() {
-        NodeList textviewContent = iFrame.getContentDocument().getElementsByClassName("textviewContent").item(0).getChildNodes();
-        String content = "";
-        for (int i = 0; i < textviewContent.length(); i++) {
-            String line = textviewContent.item(i).getTextContent();
-            content += line.replaceAll(" $", "\n");
-        }
-        return content.replaceAll("\n$", "");
+    public String getContent(final CallBack callBack) {
+        framePromise.then(new Operation<Window>() {
+            @Override
+            public void apply(final Window arg) throws OperationException {
+                JSONObject obj = new JSONObject();
+                obj.put("type", new JSONString("getContent"));
+                arg.postMessage(obj.toString(), "*");
+
+                arg.addEventListener("MyEventType", new EventListener() {
+                    @Override
+                    public void handleEvent(Event evt) {
+                        String s = ((CustomEvent)evt).getDetail().toString();
+                        callBack.onSuccess(s);
+                    }
+                }, false);
+            }
+        });
+
+        return "";
     }
 }

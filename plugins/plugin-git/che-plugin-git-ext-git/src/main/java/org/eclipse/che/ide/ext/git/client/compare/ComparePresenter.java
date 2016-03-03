@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * <p/>
+ *
  * Contributors:
- * Codenvy, S.A. - initial API and implementation
+ *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.che.ide.ext.git.client.compare;
 
@@ -20,9 +20,13 @@ import org.eclipse.che.api.project.gwt.client.ProjectServiceClient;
 import org.eclipse.che.ide.api.app.AppContext;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.notification.NotificationManager;
+import org.eclipse.che.ide.orion.compare.CompareWidget;
 import org.eclipse.che.ide.rest.AsyncRequestCallback;
 import org.eclipse.che.ide.rest.DtoUnmarshallerFactory;
 import org.eclipse.che.ide.rest.StringUnmarshaller;
+import org.eclipse.che.ide.ui.dialogs.CancelCallback;
+import org.eclipse.che.ide.ui.dialogs.ConfirmCallback;
+import org.eclipse.che.ide.ui.dialogs.DialogFactory;
 
 import static org.eclipse.che.ide.api.notification.StatusNotification.Status.FAIL;
 
@@ -36,6 +40,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
 
     private final AppContext             appContext;
     private final EventBus               eventBus;
+    private final DialogFactory          dialogFactory;
     private final DtoUnmarshallerFactory dtoUnmarshallerFactory;
     private final CompareView            view;
     private final ProjectServiceClient   projectService;
@@ -49,6 +54,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
     @Inject
     public ComparePresenter(AppContext appContext,
                             EventBus eventBus,
+                            DialogFactory dialogFactory,
                             DtoUnmarshallerFactory dtoUnmarshallerFactory,
                             CompareView view,
                             ProjectServiceClient projectServiceClient,
@@ -56,6 +62,7 @@ public class ComparePresenter implements CompareView.ActionDelegate {
                             NotificationManager notificationManager) {
         this.appContext = appContext;
         this.eventBus = eventBus;
+        this.dialogFactory = dialogFactory;
         this.dtoUnmarshallerFactory = dtoUnmarshallerFactory;
         this.view = view;
         this.projectService = projectServiceClient;
@@ -121,19 +128,29 @@ public class ComparePresenter implements CompareView.ActionDelegate {
             return;
         }
 
-        final String path = appContext.getCurrentProject().getRootProject().getName() + "/" + item;
-        projectService.updateFile(workspaceId, path, content, new AsyncRequestCallback<Void>() {
+        dialogFactory.createConfirmDialog("sdfgsdg", "dfhsdfh", new ConfirmCallback() {
             @Override
-            protected void onSuccess(Void result) {
-                eventBus.fireEvent(new FileContentUpdateEvent("/" + path));
-            }
+            public void accepted() {
+                final String path = appContext.getCurrentProject().getRootProject().getName() + "/" + item;
+                projectService.updateFile(workspaceId, path, content, new AsyncRequestCallback<Void>() {
+                    @Override
+                    protected void onSuccess(Void result) {
+                        eventBus.fireEvent(new FileContentUpdateEvent("/" + path));
+                    }
 
+                    @Override
+                    protected void onFailure(Throwable exception) {
+                        notificationManager.notify(exception.getMessage(), FAIL, false);
+                    }
+                });
+            }
+        }, new CancelCallback() {
             @Override
-            protected void onFailure(Throwable exception) {
-
+            public void cancelled() {
+                //do nothing
             }
-        });
-        view.hide();
+        }).show();
+        //view.hide();
     }
 
     private void showCompare(final String file, final String oldContent, final String revision) {

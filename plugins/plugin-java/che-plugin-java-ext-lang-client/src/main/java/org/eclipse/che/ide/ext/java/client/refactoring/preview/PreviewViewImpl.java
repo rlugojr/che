@@ -196,7 +196,7 @@ final class PreviewViewImpl extends Window implements PreviewView {
             }
             refreshComperingFiles(preview);
 
-            compare.refresh();
+            compare.reload();
         }
     }
 
@@ -222,7 +222,7 @@ final class PreviewViewImpl extends Window implements PreviewView {
         compareConfig.setShowTitle(true);
         compareConfig.setShowLineStatus(true);
 
-        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
+        compare = new CompareWidget(compareFactory, compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
         diff.add(compare);
     }
 

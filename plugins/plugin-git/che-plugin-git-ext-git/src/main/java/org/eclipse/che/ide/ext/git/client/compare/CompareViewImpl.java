@@ -78,14 +78,19 @@ final class CompareViewImpl extends Window implements CompareView {
         Button closeButton = createButton(locale.buttonClose(), "git-compare-close-btn", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                delegate.onCloseButtonClicked(compare.getContent());
+                compare.getContent(new CompareWidget.CallBack() {
+                    @Override
+                    public void onSuccess(String content) {
+                        delegate.onCloseButtonClicked(content);
+                    }
+                });
             }
         });
 
         Button compareButton = createButton("refresh", "git-compare-compare-btn", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                compare.refresh1();
+                compare.refresh();
             }
         });
 
@@ -128,7 +133,7 @@ final class CompareViewImpl extends Window implements CompareView {
         compareConfig.setShowTitle(false);
         compareConfig.setShowLineStatus(false);
 
-        compare = new CompareWidget(compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
+        compare = new CompareWidget(compareFactory, compareConfig, themeAgent.getCurrentThemeId(), loaderFactory);
         comparePanel.clear();
         comparePanel.add(compare);
     }
