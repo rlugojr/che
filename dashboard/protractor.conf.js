@@ -1,11 +1,24 @@
 'use strict';
 
 var paths = {
-  src: 'src',
-  dist: 'dist',
-  tmp: '.tmp',
-  e2e: 'e2e'
-};
+      src: 'src',
+      dist: 'dist',
+      tmp: '.tmp',
+      e2e: 'e2e'
+    },
+    HtmlScreenshotReporter = require('protractor-jasmine2-screenshot-reporter'),
+    reporter = new HtmlScreenshotReporter({
+      dest: 'target/protractor-tests-report',
+      filename: 'report.html',
+      showQuickLinks: true,
+      reportOnlyFailedSpecs: false,
+      captureOnlyFailedSpecs: true,
+      pathBuilder: function(currentSpec, suites, browserCapabilities) {
+        // will return chrome/your-spec-name.png
+        return browserCapabilities.get('browserName') + '/' + currentSpec.fullName;
+      }
+    });
+
 
 // An example configuration file.
 exports.config = {
@@ -16,21 +29,47 @@ exports.config = {
   // Capabilities to be passed to the webdriver instance.
   capabilities: {
     'browserName': 'chrome',
+    'shardTestFiles': true,
+    'maxInstances': 2,
     'chromeOptions': {
       args: ['--lang=en',
         '--window-size=1024,768']
     }
   },
-  
+
   baseUrl: 'http://localhost:3000',
 
   // Spec patterns are relative to the current working directory when
   // protractor is called.
   specs: [paths.e2e + '/**/*.js'],
 
+  suites: {
+    debug: ['./**/list-stack.spec.js']
+  },
+
   // Options to be passed to Jasmine-node.
   jasmineNodeOpts: {
     showColors: true,
     defaultTimeoutInterval: 30000
+  },
+
+  // Setup the report before any tests start
+  beforeLaunch: function() {
+    return new Promise(function(resolve){
+      reporter.beforeLaunch(resolve);
+    });
+  },
+
+  // Assign the test reporter to each running instance
+  onPrepare: function() {
+    jasmine.getEnv().addReporter(reporter);
+  },
+
+  // Close the report after all tests finish
+  afterLaunch: function(exitCode) {
+    return new Promise(function(resolve){
+      reporter.afterLaunch(resolve.bind(this, exitCode));
+    });
   }
+
 };
