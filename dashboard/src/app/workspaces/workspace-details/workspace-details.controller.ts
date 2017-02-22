@@ -264,7 +264,7 @@ export class WorkspaceDetailsController {
    *
    * @returns {Array} array of namespaces
    */
-  getNamespaces(): Array<string> {
+  getNamespaces(): Array<che.INamespace> {
     return this.cheNamespaceRegistry.getNamespaces();
   }
 
@@ -305,7 +305,7 @@ export class WorkspaceDetailsController {
    * Callback when environment has been changed.
    */
   updateWorkspaceConfigEnvironment(): void {
-    delete this.workspaceImportedRecipe;
+    this.workspaceImportedRecipe = null;
     this.switchEditMode();
   }
 
