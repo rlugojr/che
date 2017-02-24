@@ -33,7 +33,7 @@ exports.config = {
     'maxInstances': 2,
     'chromeOptions': {
       args: ['--lang=en',
-        '--window-size=1024,768']
+        '--window-size=1280,800']
     }
   },
 
